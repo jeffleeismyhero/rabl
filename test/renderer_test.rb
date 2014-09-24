@@ -263,6 +263,20 @@ context "Rabl::Renderer" do
       Rabl.render([], 'test', :view_path => tmp_path, :root => false, :scope => scope)
     end.equals "[]"
 
+    asserts 'it renders collections with a root and object_root' do
+      File.open(tmp_path + "test6.rabl", "w") do |f|
+        f.puts %q{
+          collection @users, root: 'data', object_root: 'user'
+          attribute :name, :age
+        }
+      end
+
+      scope = Object.new
+      users = [User.new(:name => 'ivan')]
+      scope.instance_variable_set :@users, users
+      Rabl.render(users, 'test6', :view_path => tmp_path, :root => false, :scope => scope)
+    end.equals "{\"data\":[{\"user\":{\"name\":\"ivan\",\"age\":24}}]}"
+
     asserts 'handles view path for when it specified and config is empty' do
       Rabl.configuration.view_paths = []
 
